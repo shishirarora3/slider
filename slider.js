@@ -104,11 +104,11 @@ HikeSlider.prototype.getTranslationUnits = function(isLeft){
     calculator[isLeft]();
     
     if(this.sliderIndex>= this.sliderFrameLength-1){
+        //this.sliderContent .addClass('transition--0');
         this.sliderIndex = 0;
-        this.sliderContent.addClass('transition--0');
     }else if( this.sliderIndex<0){
+        //this.sliderContent .addClass('transition--0');
         this.sliderIndex = this.sliderFrameLength-1;
-        this.sliderContent.addClass('transition--0');
     }
     
     return sign * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
@@ -116,7 +116,7 @@ HikeSlider.prototype.getTranslationUnits = function(isLeft){
 
 HikeSlider.prototype.updateSlider = function(isLeft){
             var that =this;
-
+            //this.sliderContent .removeClass('transition--0');
             if(this.mouseIsDown && !this.isAnimation){
                     requestAnimationFrame( HikeSlider.prototype.updateSlider.bind(that, isLeft) );
                     
@@ -124,10 +124,9 @@ HikeSlider.prototype.updateSlider = function(isLeft){
             }else{
                 return false;
             }
-            this.sliderContent.removeClass('transition--0');
             var translationUnits = this.getTranslationUnits(isLeft);
             this.isAnimation = true;
-            $('.slider-track').css('transform', 'translate3d(' + translationUnits + '%,0px,0px)');
+            this.sliderContent .css('transform', 'translate3d(' + translationUnits + '%,0px,0px)');
             
         
 }
