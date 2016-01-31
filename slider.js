@@ -55,170 +55,81 @@ HikeSlider.prototype.initializeSlider = function() {
     //event handlers registered
         $('.slider-prev').on({
            'mousedown' : function(event) {
-                            this.goLeft();
-                            this.interval = setInterval(function() {
-                                this.goLeft();
-                            }.bind(this), 100);
+                            if(!this.mouseIsDown && !this.isAnimation){
+                                this.mouseIsDown = true;
+                                this.interval = setInterval(function(){
+                                    requestAnimationFrame(this.updateSlider.bind(this,true));
+                                }.bind(this),10);
+                                
+                            }   
                           }.bind(this),
             'mouseup': function(event) {
-                            clearInterval(this.interval);
-                        }.bind(that)
+                        this.mouseIsDown = false;
+                        clearInterval(this.interval);
+                    }.bind(this)
         });
         $('.slider-next').on({
            'mousedown' : function(event) {
-                            this.goRight();
-                            this.interval = setInterval(function() {
-                                this.goRight();
-                            }.bind(this), 100);
+                            if(!this.mouseIsDown && !this.isAnimation){
+                                this.mouseIsDown = true;
+                                this.interval = setInterval(function(){
+                                    requestAnimationFrame(this.updateSlider.bind(this,false));
+                                }.bind(this),10);
+                                
+                            }  
                           }.bind(this),
             'mouseup': function(event) {
+                            this.mouseIsDown = false;
                             clearInterval(this.interval);
-                        }.bind(that)
+                        }.bind(this)
         });
-    
-}
-
-HikeSlider.prototype.goLeft = function() {
-    if (this.isAnimation) {
-        return;
-    }
-    this.isAnimation = true;
-    var self = this;
-    this.sliderIndex--;
-    if (this.sliderIndex == -1) {
-        this.sliderContent.addClass('transition--0');
-        this.sliderLength += this.noOfSlidesShown;
-        this.sliderItemWidth = 100 / this.sliderLength;
-        for (var i = 0; i < this.noOfSlidesShown; i++) {
-            var clone = $(this.sliderContent.children()[this.sliderContent.children().length - 1 - i]).clone();
-            clone.addClass('clone');
-            this.sliderContent.prepend(clone);
-        }
-        this.sliderContent.css('width', (this.sliderLength / this.noOfSlidesShown) * 100 + '%');
-        this.lastClone = true;
-        $.each(this.sliderContent.children(), function() {
-            return $(this).css("width", self.sliderItemWidth + "%");
-        });
-        var t = -1 * (this.sliderIndex + 2) * this.sliderItemWidth * this.noOfSlidesShown;
-        this.sliderContent.css('transform', 'translate3d(' + t + '%,0px,0px)');
-
-
-        window.requestAnimationFrame(function() {
-            t = 0;
-            this.sliderContent.removeClass('transition--0');
-            this.sliderContent.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd',
-                function() {
-
-                    if (this.lastClone) {
-                        this.lastClone = false;
-                        this.sliderContent.addClass('transition--0');
-                        this.sliderIndex = this.sliderFrameLength - 1;
-                        $('.clone').remove();
-                        this.sliderLength = this.sliderContent.children().length;
-                        this.sliderItemWidth = 100 / this.sliderLength;
-                        this.sliderContent.css('width', (this.sliderLength / this.noOfSlidesShown) * 100 + '%');
-                        var t = -1 * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
-                        this.sliderContent.css('transform', 'translate3d(' + t + '%,0px,0px)');
-                        $.each(this.sliderContent.children(), function() {
-                            return $(this).css("width", self.sliderItemWidth + "%");
-                        });
-                        this.appendFirstFrameToSliderContent();
-                        this.isAnimation = false;
-                    }
-
-                }.bind(this));
-            this.sliderContent.css('transform', 'translate3d(' + t + '%,0px,0px)');
-        }.bind(this));
-
-
-    } else {
-        var translationUnits = -1 * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
-        this.sliderContent.removeClass('transition--0');
-        this.sliderContent.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd',
-            function() {
-            	this.removeLastFrameFromSlider();
-                this.isAnimation = false;
+        this.sliderContent.on('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd',function(){
+                 this.isAnimation = false;
             }.bind(this));
-        this.sliderContent.css('transform', 'translate3d(' + translationUnits + '%,0px,0px)');
-
-        	
     
-
-    }
 }
 
-HikeSlider.prototype.goRight = function() {
-    if (this.isAnimation) {
-        return;
+HikeSlider.prototype.getTranslationUnits = function(isLeft){
+    var sign, 
+    calculator = {
+        true: function(){
+            this.sliderIndex--;
+            sign = -1;
+        }.bind(this),
+        false: function(){
+            this.sliderIndex++;
+            sign = -1;
+        }.bind(this)
+    };
+    calculator[isLeft]();
+    
+    if(this.sliderIndex>= this.sliderFrameLength-1){
+        this.sliderIndex = 0;
+        this.sliderContent.addClass('transition--0');
+    }else if( this.sliderIndex<0){
+        this.sliderIndex = this.sliderFrameLength-1;
+        this.sliderContent.addClass('transition--0');
     }
-    this.isAnimation = true;
-    this.sliderIndex++;
-    var translationUnits = -1 * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
-    this.sliderContent.removeClass('transition--0');
-    $(".slider-track").one('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd',
-        function() {
-            var self = this;
-            this.isAnimation = false;
-            if (this.firstClone) {
-                this.sliderIndex = 0;
-                this.sliderContent.addClass('transition--0');
-                $('.clone').remove();
-                this.adjustSliderItemWidth();
-                var t = -1 * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
-                this.sliderContent.css('transform', 'translate3d(' + t + '%,0px,0px)');
-                $.each(this.sliderContent.children(), function() {
-                    return $(this).css("width", self.sliderItemWidth + "%");
-                });
+    
+    return sign * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
+}
 
-                this.firstClone = false;
+HikeSlider.prototype.updateSlider = function(isLeft){
+            var that =this;
+
+            if(this.mouseIsDown && !this.isAnimation){
+                    requestAnimationFrame( HikeSlider.prototype.updateSlider.bind(that, isLeft) );
+                    
+                    
+            }else{
+                return false;
             }
-
-            if (this.sliderIndex == this.sliderFrameLength - 1) {
-                this.appendFirstFrameToSliderContent();
-
-            }
-        }.bind(this));
-    $('.slider-track').css('transform', 'translate3d(' + translationUnits + '%,0px,0px)');
-
+            this.sliderContent.removeClass('transition--0');
+            var translationUnits = this.getTranslationUnits(isLeft);
+            this.isAnimation = true;
+            $('.slider-track').css('transform', 'translate3d(' + translationUnits + '%,0px,0px)');
+            
+        
 }
 
-HikeSlider.prototype.appendFirstFrameToSliderContent = function() {
-	var self = this;
-    this.sliderLength += this.noOfSlidesShown;
-    this.sliderItemWidth = 100 / this.sliderLength;
-    for (var i = 0; i < this.noOfSlidesShown; i++) {
-        var clone = $(this.sliderContent.children()[i]).clone();
-        clone.addClass('clone');
-        this.sliderContent.append(clone);
-    }
-    this.sliderContent.css('width', (this.sliderLength / this.noOfSlidesShown) * 100 + '%');
-    this.firstClone = true;
-    $.each(this.sliderContent.children(), function() {
-        return $(this).css("width", self.sliderItemWidth + "%");
-    });
-    this.sliderContent.addClass('transition--0');
-    var t = -1 * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
-    this.sliderContent.css('transform', 'translate3d(' + t + '%,0px,0px)');
-}
 
-HikeSlider.prototype.adjustSliderItemWidth = function () {
-	                this.sliderLength = this.sliderContent.children().length;
-                this.sliderItemWidth = 100 / this.sliderLength;
-                this.sliderContent.css('width', (this.sliderLength / this.noOfSlidesShown) * 100 + '%');
-}
-
-HikeSlider.prototype.removeLastFrameFromSlider = function () {
-	var $clones = $('.clone');
-	var self = this;
-	if ($clones.length) {
-		$clones.remove();
-		this.sliderContent.addClass('transition--0');
-		this.adjustSliderItemWidth();
-		$.each(this.sliderContent.children(), function() {
-               return $(this).css("width", self.sliderItemWidth + "%");
-         });
-		this.firstClone = false;
-		var t = -1 * this.sliderIndex * this.sliderItemWidth * this.noOfSlidesShown;
-    this.sliderContent.css('transform', 'translate3d(' + t + '%,0px,0px)');
-	}
-}
