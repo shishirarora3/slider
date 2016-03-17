@@ -1,13 +1,4 @@
-var myList = document.querySelector('ul');
-fetch(myRequest).then(function(response) {
-    return response.json().then(function(json) {
-        for(i = 0; i < json.products.length; i++) {
-            var listItem = document.createElement('li');
-            listItem.innerHTML = '<strong>' + json.products[i].Name + '</strong> can be found in ' + json.products[i].Location + '. Cost: <strong>£' + json.products[i].Price + '</strong>';
-            myList.appendChild(listItem);
-        }
-    });
-});
+
 
 
 
