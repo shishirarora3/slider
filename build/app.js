@@ -19706,7 +19706,6 @@ webpackJsonp([0,1],[
 	    value: true
 	});
 	var myList = document.querySelector('ul');
-	var myRequest = new Request('products.json');
 	fetch(myRequest).then(function (response) {
 	    return response.json().then(function (json) {
 	        for (i = 0; i < json.products.length; i++) {
@@ -19719,9 +19718,9 @@ webpackJsonp([0,1],[
 
 	var imageFactory = {
 	    counter: 0,
-	    request: request,
+	    request: '',
 	    next: function next(noOfSlides, source) {
-	        imageFactory.request = imageFactory.request || new Request('https://api.myjson.com/bins/1wqfa');
+	        imageFactory.request = imageFactory.request || new Request(source);
 	        fetch(imageFactory.request).then(function (response) {
 	            return response.json();
 	        }).then(function (json) {
