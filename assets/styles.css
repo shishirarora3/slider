@@ -5,10 +5,10 @@
     left: 25%;
 }
 .slider {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  border: 1px solid #C0C0C0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border: 1px solid #C0C0C0;
 }
 
 .slider-prev,
@@ -33,70 +33,69 @@
 
 
 .slide {
-  width: 187px;
-  float: left;
-  height: 100%;
-  min-height: 1px;
-  background-color: #FFFFFF;
+    width: 187px;
+    float: left;
+    height: 100%;
+    min-height: 1px;
+    background-color: #FFFFFF;
 
 }
 
 .slider-list {
-  height: 100%;
-  overflow: hidden;
+    height: 100%;
+    overflow: hidden;
 }
 
 .slider-track {
-  height: 100%;
-  transition: transform 1s linear;
-transform: translate3d(0px, 0px, 0px);
+    height: 100%;
+    transition: transform 1s linear;
+    transform: translate3d(0px, 0px, 0px);
 
 }
 
 .image-container {
     width: 100%;
     height: 100%;
-    padding: 20px;
     box-sizing: border-box;
 }
 
 .image-container img {
-  width: 100%;
-  height: 100%
+    width: 100%;
+    height: 100%
 }
 
 .transition--0 {
-  transition: transform 0.1s linear;
+    transition: transform 0.1s linear;
 }
 
 .round-button {
-  width:5%;
+    width:5%;
 }
 .round-button-circle {
-  width: 100%;
-  height:0;
-  padding-bottom: 100%;
+    width: 100%;
+    height:0;
+    padding-bottom: 100%;
     border-radius: 50%;
-  border:8px solid #cfdcec;
+    border:8px solid #cfdcec;
     overflow:hidden;
-    
-    background: #4679BD; 
+
+    background: #4679BD;
     box-shadow: 0 0 3px gray;
 }
 .round-button-circle:hover {
-  background:#30588e;
+    background:#30588e;
 }
 .round-button a {
     display:block;
-  float:left;
-  width:100%;
-  padding-top:50%;
+    float:left;
+    width:100%;
+    padding-top:50%;
     padding-bottom:50%;
-  line-height:1em;
-  margin-top:-0.5em;
-    
-  text-align:center;
-  color:#e2eaf3;
+    line-height:1em;
+    margin-top:-0.5em;
+
+    text-align:center;
+    color:#e2eaf3;
     font-family:Verdana;
     font-size:1.2em;
     font-weight:bold;
