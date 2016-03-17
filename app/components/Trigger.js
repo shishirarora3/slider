@@ -10,27 +10,26 @@ class Trigger extends Component {
         super(props);
         this.state ={
             images:['assets/loader.gif']
-        }
-    }
-    componentDidMount(){
-        imageFactory.next(this.props.source,10).then((images)=>{
-            this.state.images.push(...images);
-        })
+        };
+        imageFactory.next(10, props.source,(images)=>{
+            this.setState({
+                images: images
+            });
+        });
     }
 
+
     render() {
-        imageFactory.next(10).then((images)=>{
+        var  that =this;
+
             return (
                 <Slider
                     images = {this.state.images}
                     className = "mySlider"
                     noOfSlidesShown = {2}
-                    relativeTranslationUnits = {-1.5}
                     incrementTranslationUnits = {1}
                 />
             )
-        });
-
     }
 }
 

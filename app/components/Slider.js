@@ -5,38 +5,43 @@ import Button from './Button';
 class Slider extends Component {
     constructor(props) {
         super(props);
-        this.sliderIndex = 1;
+        let {images} = props,
+            sliderLength = images.length,
+
+            sliderItemWidth = 100 / sliderLength,
+            relativeTranslationUnits= parseInt(sliderItemWidth/2);
+        this.sliderIndex = 0;
         this.state = {
-            translationUnits : props.relativeTranslationUnits
+            translationUnits : -relativeTranslationUnits,
+            relativeTranslationUnits: relativeTranslationUnits
         };
     }
     getTranslationUnits(isLeft){
         let props = this.props,
-            {images,noOfSlidesShown,relativeTranslationUnits, incrementTranslationUnits} = props,
+            {images, incrementTranslationUnits} = props,
             sliderLength = images.length,
-            sliderFrameLength = parseInt(sliderLength / noOfSlidesShown),
             sliderItemWidth = 100 / sliderLength,
-            translationUnits;
+            translationUnits,
+
+            relativeTranslationUnits = this.state.relativeTranslationUnits ;
 
         var sign,
             calculator = {
                 true: function(){
-                    this.sliderIndex--;
-                    sign = -1;
+                    this.sliderIndex-=incrementTranslationUnits;
                 }.bind(this),
                 false: function(){
-                    this.sliderIndex++;
-                    sign = -1;
+                    this.sliderIndex+=incrementTranslationUnits;
                 }.bind(this)
             };
         calculator[isLeft]();
 
-        if(this.sliderIndex>= sliderFrameLength-1){
+        if(this.sliderIndex>= sliderLength-1){
             this.sliderIndex = 0;
         }else if( this.sliderIndex<0){
-            this.sliderIndex = sliderFrameLength-1;
+            this.sliderIndex = sliderLength-1;
         }
-        translationUnits = (sign * this.sliderIndex * sliderItemWidth * incrementTranslationUnits) - relativeTranslationUnits;
+        translationUnits = (-1 * this.sliderIndex * sliderItemWidth ) - relativeTranslationUnits;
 
         return translationUnits;
 
@@ -70,6 +75,17 @@ class Slider extends Component {
     componentDidUpdate() {
         this._sliderTrack.addEventListener('transitionend', this.onTransitionEnd.bind(this), false);
     }
+    componentWillReceiveProps(nextProps) {
+        let {images} = nextProps,
+            sliderLength = images.length,
+            sliderItemWidth = 100 / sliderLength,
+            relativeTranslationUnits = sliderItemWidth/2;
+        this.setState({
+            translationUnits : -relativeTranslationUnits,
+            relativeTranslationUnits: relativeTranslationUnits
+        });
+
+    }
     render() {
         let props = this.props,
             {images,noOfSlidesShown} = props,
@@ -93,8 +109,8 @@ class Slider extends Component {
         return (
             <div id="mySlider">
                 <div className="slider">
-                    {renderButton(false, 'slider-next', '&lt;')}
-                    {renderButton(true, 'slider-prev', '&gt;')}
+                    {renderButton(false, 'slider-next', '>')}
+                    {renderButton(true, 'slider-prev', '<')}
 
 
                     <div className="slider-list">

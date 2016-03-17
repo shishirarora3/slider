@@ -19638,8 +19638,6 @@ webpackJsonp([0,1],[
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -19660,33 +19658,24 @@ webpackJsonp([0,1],[
 	        _this.state = {
 	            images: ['assets/loader.gif']
 	        };
+	        _data2.default.next(10, props.source, function (images) {
+	            _this.setState({
+	                images: images
+	            });
+	        });
 	        return _this;
 	    }
 
 	    _createClass(Trigger, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            var _this2 = this;
-
-	            _data2.default.next(this.props.source, 10).then(function (images) {
-	                var _state$images;
-
-	                (_state$images = _this2.state.images).push.apply(_state$images, _toConsumableArray(images));
-	            });
-	        }
-	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this3 = this;
+	            var that = this;
 
-	            _data2.default.next(10).then(function (images) {
-	                return _react2.default.createElement(_Slider2.default, {
-	                    images: _this3.state.images,
-	                    className: 'mySlider',
-	                    noOfSlidesShown: 2,
-	                    relativeTranslationUnits: -1.5,
-	                    incrementTranslationUnits: 1
-	                });
+	            return _react2.default.createElement(_Slider2.default, {
+	                images: this.state.images,
+	                className: 'mySlider',
+	                noOfSlidesShown: 2,
+	                incrementTranslationUnits: 1
 	            });
 	        }
 	    }]);
@@ -19710,16 +19699,17 @@ webpackJsonp([0,1],[
 	var imageFactory = {
 	    counter: 0,
 	    request: '',
-	    next: function next(noOfSlides, source) {
+	    next: function next(noOfSlides, source, cb) {
 	        imageFactory.request = imageFactory.request || new Request(source);
 	        fetch(imageFactory.request).then(function (response) {
 	            return response.json();
 	        }).then(function (json) {
 	            noOfSlides = noOfSlides || 1;
+	            noOfSlides = json.length < noOfSlides ? json.length : noOfSlides;
 	            imageFactory.counter += noOfSlides;
-	            return Array.apply(0, new Array(noOfSlides)).map(function (x, y) {
-	                return json[y + 1];
-	            });
+	            cb(Array.apply(0, new Array(noOfSlides)).map(function (x, y) {
+	                return json[y].image.medium;
+	            }));
 	        });
 	    }
 	};
@@ -19765,9 +19755,15 @@ webpackJsonp([0,1],[
 
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Slider).call(this, props));
 
-	        _this.sliderIndex = 1;
+	        var images = props.images;
+	        var sliderLength = images.length;
+
+	        var sliderItemWidth = 100 / sliderLength;
+	        var relativeTranslationUnits = parseInt(sliderItemWidth / 2);
+	        _this.sliderIndex = 0;
 	        _this.state = {
-	            translationUnits: props.relativeTranslationUnits
+	            translationUnits: -relativeTranslationUnits,
+	            relativeTranslationUnits: relativeTranslationUnits
 	        };
 	        return _this;
 	    }
@@ -19777,33 +19773,30 @@ webpackJsonp([0,1],[
 	        value: function getTranslationUnits(isLeft) {
 	            var props = this.props;
 	            var images = props.images;
-	            var noOfSlidesShown = props.noOfSlidesShown;
-	            var relativeTranslationUnits = props.relativeTranslationUnits;
 	            var incrementTranslationUnits = props.incrementTranslationUnits;
 	            var sliderLength = images.length;
-	            var sliderFrameLength = parseInt(sliderLength / noOfSlidesShown);
 	            var sliderItemWidth = 100 / sliderLength;
 	            var translationUnits = void 0;
+
+	            var relativeTranslationUnits = this.state.relativeTranslationUnits;
 
 	            var sign,
 	                calculator = {
 	                true: function () {
-	                    this.sliderIndex--;
-	                    sign = -1;
+	                    this.sliderIndex -= incrementTranslationUnits;
 	                }.bind(this),
 	                false: function () {
-	                    this.sliderIndex++;
-	                    sign = -1;
+	                    this.sliderIndex += incrementTranslationUnits;
 	                }.bind(this)
 	            };
 	            calculator[isLeft]();
 
-	            if (this.sliderIndex >= sliderFrameLength - 1) {
+	            if (this.sliderIndex >= sliderLength - 1) {
 	                this.sliderIndex = 0;
 	            } else if (this.sliderIndex < 0) {
-	                this.sliderIndex = sliderFrameLength - 1;
+	                this.sliderIndex = sliderLength - 1;
 	            }
-	            translationUnits = sign * this.sliderIndex * sliderItemWidth * incrementTranslationUnits - relativeTranslationUnits;
+	            translationUnits = -1 * this.sliderIndex * sliderItemWidth - relativeTranslationUnits;
 
 	            return translationUnits;
 	        }
@@ -19847,6 +19840,18 @@ webpackJsonp([0,1],[
 	            this._sliderTrack.addEventListener('transitionend', this.onTransitionEnd.bind(this), false);
 	        }
 	    }, {
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nextProps) {
+	            var images = nextProps.images;
+	            var sliderLength = images.length;
+	            var sliderItemWidth = 100 / sliderLength;
+	            var relativeTranslationUnits = sliderItemWidth / 2;
+	            this.setState({
+	                translationUnits: -relativeTranslationUnits,
+	                relativeTranslationUnits: relativeTranslationUnits
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this2 = this;
@@ -19875,8 +19880,8 @@ webpackJsonp([0,1],[
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'slider' },
-	                    renderButton(false, 'slider-next', '&lt;'),
-	                    renderButton(true, 'slider-prev', '&gt;'),
+	                    renderButton(false, 'slider-next', '>'),
+	                    renderButton(true, 'slider-prev', '<'),
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'slider-list' },
