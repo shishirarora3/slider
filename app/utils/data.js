@@ -13,7 +13,7 @@ fetch(myRequest).then(function(response) {
 
 var imageFactory = {
     counter:0,
-    request,
+    request:'',
     next: function(noOfSlides,source){
         imageFactory.request = imageFactory.request || new Request(source);
         fetch(imageFactory.request).then(function(response) {
