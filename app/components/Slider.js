@@ -1,4 +1,3 @@
-
 import React, { PropTypes, Component }  from 'react';
 import Slide from './Slide';
 import Button from './Button';
@@ -9,115 +8,122 @@ class Slider extends Component {
             sliderLength = images.length,
 
             sliderItemWidth = 100 / sliderLength,
-            relativeTranslationUnits= parseInt(sliderItemWidth/2);
+            relativeTranslationUnits = parseInt(sliderItemWidth / 2);
         this.sliderIndex = 0;
         this.state = {
-            translationUnits : -relativeTranslationUnits,
+            translationUnits: -relativeTranslationUnits,
             relativeTranslationUnits: relativeTranslationUnits
         };
     }
-    getTranslationUnits(isLeft){
+
+    getTranslationUnits(isLeft) {
         let props = this.props,
             {images, incrementTranslationUnits} = props,
             sliderLength = images.length,
             sliderItemWidth = 100 / sliderLength,
             translationUnits,
 
-            relativeTranslationUnits = this.state.relativeTranslationUnits ;
+            relativeTranslationUnits = this.state.relativeTranslationUnits;
 
         var sign,
             calculator = {
-                true: function(){
-                    this.sliderIndex-=incrementTranslationUnits;
+                true: function () {
+                    this.sliderIndex -= incrementTranslationUnits;
                 }.bind(this),
-                false: function(){
-                    this.sliderIndex+=incrementTranslationUnits;
+                false: function () {
+                    this.sliderIndex += incrementTranslationUnits;
                 }.bind(this)
             };
         calculator[isLeft]();
 
-        if(this.sliderIndex>= sliderLength-1){
+        if (this.sliderIndex >= sliderLength - 1) {
             this.sliderIndex = 0;
-        }else if( this.sliderIndex<0){
-            this.sliderIndex = sliderLength-1;
+        } else if (this.sliderIndex < 0) {
+            this.sliderIndex = sliderLength - 1;
         }
         translationUnits = (-1 * this.sliderIndex * sliderItemWidth ) - relativeTranslationUnits;
 
         return translationUnits;
 
     }
-    updateSlider(isLeft){
-        var that =this;
-        if(this.mouseIsDown && !this.isAnimation){
-            requestAnimationFrame( this.updateSlider.bind(that, isLeft) );
-        }else{
+
+    updateSlider(isLeft) {
+        var that = this;
+        if (this.mouseIsDown && !this.isAnimation) {
+            requestAnimationFrame(this.updateSlider.bind(that, isLeft));
+        } else {
             return false;
         }
         var translationUnits = this.getTranslationUnits(isLeft);
         this.setState({'translationUnits': translationUnits});
         this.isAnimation = true;
-        }
-    onMouseDown(isLeft, e){
-        if(!this.mouseIsDown && !this.isAnimation){
+    }
+
+    onMouseDown(isLeft, e) {
+        if (!this.mouseIsDown && !this.isAnimation) {
             this.mouseIsDown = true;
-            this.interval = setInterval(function(){
-                requestAnimationFrame(this.updateSlider.bind(this,isLeft));
-            }.bind(this),10);
+            this.interval = setInterval(function () {
+                requestAnimationFrame(this.updateSlider.bind(this, isLeft));
+            }.bind(this), 10);
         }
     }
-    onMouseUp( e){
+
+    onMouseUp(e) {
         this.mouseIsDown = false;
         clearInterval(this.interval);
     }
-    onTransitionEnd(){
+
+    onTransitionEnd() {
         this.isAnimation = false;
     }
+
     componentDidUpdate() {
         this._sliderTrack.addEventListener('transitionend', this.onTransitionEnd.bind(this), false);
     }
+
     componentWillReceiveProps(nextProps) {
         let {images} = nextProps,
             sliderLength = images.length,
             sliderItemWidth = 100 / sliderLength,
-            relativeTranslationUnits = sliderItemWidth/2;
+            relativeTranslationUnits = sliderItemWidth / 2;
         this.setState({
-            translationUnits : -relativeTranslationUnits,
+            translationUnits: -relativeTranslationUnits,
             relativeTranslationUnits: relativeTranslationUnits
         });
 
     }
+
     render() {
         let props = this.props,
             {images,noOfSlidesShown} = props,
             sliderLength = images.length,
 
-            sliderTrackWidth = (sliderLength/noOfSlidesShown)* 100 + '%',
+            sliderTrackWidth = (sliderLength / noOfSlidesShown) * 100 + '%',
             {translationUnits} = this.state,
             sliderTrackStyle = {
                 width: sliderTrackWidth,
-                transform:'translate3d('+translationUnits+'%,0px,0px)'
+                transform: 'translate3d(' + translationUnits + '%,0px,0px)'
 
             };
-        const renderButton = (isLeft, className, content)=>{
+        const renderButton = (isLeft, className, source)=> {
             return (
                 <Button className={className}
-                        onMouseDownCb = {this.onMouseDown.bind(this, isLeft)}
-                        onMouseUpCb = {this.onMouseUp.bind(this)}
-                        content = {content}/>
+                        onMouseDownCb={this.onMouseDown.bind(this, isLeft)}
+                        onMouseUpCb={this.onMouseUp.bind(this)}
+                        source={source}/>
             )
         };
         return (
             <div id="mySlider">
                 <div className="slider">
-                    {renderButton(false, 'slider-next', '>')}
-                    {renderButton(true, 'slider-prev', '<')}
-
+                    {renderButton(false, 'slider-next', 'https://static1.spuul.com/assets/images/icon_chevron_right-bd9598fa29.png')}
+                    {renderButton(true, 'slider-prev', 'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png')}
 
                     <div className="slider-list">
                         <div className="slider-track" style={sliderTrackStyle} ref={(c) => this._sliderTrack = c}>
 
-                            {images.map(function(imgSrc,i){
-                                return <Slide imgSrc ={imgSrc} key={"image-"+i} sliderLength={sliderLength} />;
+                            {images.map(function (imgSrc, i) {
+                                return <Slide imgSrc={imgSrc} key={"image-"+i} sliderLength={sliderLength}/>;
                             })}
                         </div>
                     </div>
@@ -127,8 +133,12 @@ class Slider extends Component {
         )
     }
 }
-Slider.propTypes = { images: React.PropTypes.array,
-    noOfSlidesShown: React.PropTypes.number};
-Slider.defaultProps = { images: [],
-    noOfSlidesShown:3};
+Slider.propTypes = {
+    images: React.PropTypes.array,
+    noOfSlidesShown: React.PropTypes.number
+};
+Slider.defaultProps = {
+    images: [],
+    noOfSlidesShown: 3
+};
 export default Slider

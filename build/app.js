@@ -19658,9 +19658,13 @@ webpackJsonp([0,1],[
 	        _this.state = {
 	            images: ['assets/loader.gif']
 	        };
-	        _data2.default.next(10, props.source, function (images) {
+	        _data2.default.setSource(props.source).next(5, function (images) {
 	            _this.setState({
-	                images: images
+	                imagesSlider1: images
+	            });
+	        }).next(5, function (images) {
+	            _this.setState({
+	                imagesSlider2: images
 	            });
 	        });
 	        return _this;
@@ -19671,12 +19675,22 @@ webpackJsonp([0,1],[
 	        value: function render() {
 	            var that = this;
 
-	            return _react2.default.createElement(_Slider2.default, {
-	                images: this.state.images,
-	                className: 'mySlider',
-	                noOfSlidesShown: 2,
-	                incrementTranslationUnits: 1
-	            });
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement(_Slider2.default, {
+	                    images: this.state.imagesSlider1,
+	                    className: 'mySlider',
+	                    noOfSlidesShown: 2,
+	                    incrementTranslationUnits: 1
+	                }),
+	                _react2.default.createElement(_Slider2.default, {
+	                    images: this.state.imagesSlider2,
+	                    className: 'mySlider',
+	                    noOfSlidesShown: 2,
+	                    incrementTranslationUnits: 1
+	                })
+	            );
 	        }
 	    }]);
 
@@ -19694,24 +19708,37 @@ webpackJsonp([0,1],[
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-
-
 	var imageFactory = {
 	    counter: 0,
 	    request: '',
-	    next: function next(noOfSlides, source, cb) {
-	        imageFactory.request = imageFactory.request || new Request(source);
-	        fetch(imageFactory.request).then(function (response) {
+	    json: '',
+	    setSource: function setSource(source) {
+	        this.source = source;
+	        this.promise = fetch(new Request(this.source)).then(function (response) {
 	            return response.json();
-	        }).then(function (json) {
-	            noOfSlides = noOfSlides || 1;
-	            noOfSlides = json.length < noOfSlides ? json.length : noOfSlides;
-	            imageFactory.counter += noOfSlides;
-	            cb(Array.apply(0, new Array(noOfSlides)).map(function (x, y) {
-	                return json[y].image.medium;
-	            }));
 	        });
+	        return this;
+	    },
+
+	    next: function next(noOfSlides, cb) {
+	        this.promise.then(function (json) {
+	            processResponse(json, noOfSlides, cb);
+	        });
+	        return this;
 	    }
+	};
+	var processResponse = function processResponse(json, noOfSlides, cb) {
+	    var startIndex = imageFactory.counter;
+	    imageFactory.counter += noOfSlides;
+	    imageFactory.counter = json.length < imageFactory.counter ? json.length : imageFactory.counter;
+	    var endIndex = imageFactory.counter - 1;
+
+	    var images = json.filter(function (x, y) {
+	        return y >= startIndex && y <= endIndex;
+	    }).map(function (x) {
+	        return x.image.large;
+	    });
+	    cb(images);
 	};
 	exports.default = imageFactory;
 
@@ -19868,11 +19895,11 @@ webpackJsonp([0,1],[
 	                transform: 'translate3d(' + translationUnits + '%,0px,0px)'
 
 	            };
-	            var renderButton = function renderButton(isLeft, className, content) {
+	            var renderButton = function renderButton(isLeft, className, source) {
 	                return _react2.default.createElement(_Button2.default, { className: className,
 	                    onMouseDownCb: _this2.onMouseDown.bind(_this2, isLeft),
 	                    onMouseUpCb: _this2.onMouseUp.bind(_this2),
-	                    content: content });
+	                    source: source });
 	            };
 	            return _react2.default.createElement(
 	                'div',
@@ -19880,8 +19907,8 @@ webpackJsonp([0,1],[
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'slider' },
-	                    renderButton(false, 'slider-next', '>'),
-	                    renderButton(true, 'slider-prev', '<'),
+	                    renderButton(false, 'slider-next', 'https://static1.spuul.com/assets/images/icon_chevron_right-bd9598fa29.png'),
+	                    renderButton(true, 'slider-prev', 'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png'),
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'slider-list' },
@@ -19903,10 +19930,14 @@ webpackJsonp([0,1],[
 	    return Slider;
 	}(_react.Component);
 
-	Slider.propTypes = { images: _react2.default.PropTypes.array,
-	    noOfSlidesShown: _react2.default.PropTypes.number };
-	Slider.defaultProps = { images: [],
-	    noOfSlidesShown: 3 };
+	Slider.propTypes = {
+	    images: _react2.default.PropTypes.array,
+	    noOfSlidesShown: _react2.default.PropTypes.number
+	};
+	Slider.defaultProps = {
+	    images: [],
+	    noOfSlidesShown: 3
+	};
 	exports.default = Slider;
 
 /***/ },
@@ -20009,21 +20040,13 @@ webpackJsonp([0,1],[
 	            var props = this.props;
 	            var onMouseDownCb = props.onMouseDownCb;
 	            var onMouseUpCb = props.onMouseUpCb;
-	            var content = props.content;
+	            var source = props.source;
 	            var className = props.className;
 
 	            return _react2.default.createElement(
 	                "div",
-	                { className: "round-button " + className, onMouseDown: onMouseDownCb, onMouseUp: onMouseUpCb },
-	                _react2.default.createElement(
-	                    "div",
-	                    { className: "round-button-circle" },
-	                    _react2.default.createElement(
-	                        "a",
-	                        { href: "javascript:void(0)", className: "round-button" },
-	                        content
-	                    )
-	                )
+	                { className: "icon " + className, onMouseDown: onMouseDownCb, onMouseUp: onMouseUpCb },
+	                _react2.default.createElement("img", { src: source })
 	            );
 	        }
 	    }]);

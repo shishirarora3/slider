@@ -1,20 +1,27 @@
-
-
-
-
 var imageFactory = {
-    counter:0,
-    request:'',
-    next: function(noOfSlides,source,cb){
-        imageFactory.request = imageFactory.request || new Request(source);
-        fetch(imageFactory.request).then(function(response) {
-            return response.json();
-        }).then((json)=>{
-            noOfSlides = noOfSlides || 1;
-            noOfSlides = json.length<noOfSlides?json.length:noOfSlides;
-            imageFactory.counter+= noOfSlides;
-            cb(Array.apply(0,new Array(noOfSlides)).map(function(x,y){return json[y].image.medium}));
-        });
+    counter: 0,
+    request: '',
+    json: '',
+    setSource(source){
+        this.source = source;
+        this.promise = fetch(new Request(this.source)).then((response) => response.json());
+        return this;
+    },
+    next: function (noOfSlides, cb) {
+        this.promise
+            .then((json)=> {
+                processResponse(json, noOfSlides, cb);
+            });
+        return this;
     }
 };
-        export default imageFactory;
+var processResponse = (json, noOfSlides, cb)=> {
+    let startIndex = imageFactory.counter;
+    imageFactory.counter += noOfSlides;
+    imageFactory.counter = json.length < imageFactory.counter ? json.length : imageFactory.counter;
+    let endIndex = imageFactory.counter - 1;
+
+    let images = json.filter((x, y)=>y >= startIndex && y <= endIndex).map((x)=>x.image.large);
+    cb(images);
+};
+export default imageFactory;

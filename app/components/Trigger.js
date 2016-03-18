@@ -8,28 +8,40 @@ import Slider from './Slider';
 class Trigger extends Component {
     constructor(props) {
         super(props);
-        this.state ={
-            images:['assets/loader.gif']
+        this.state = {
+            images: ['assets/loader.gif']
         };
-        imageFactory.next(10, props.source,(images)=>{
+        imageFactory.setSource(props.source).next(5, (images)=> {
             this.setState({
-                images: images
+                imagesSlider1: images
+            });
+        }).next(5, (images)=> {
+            this.setState({
+                imagesSlider2: images
             });
         });
     }
 
 
     render() {
-        var  that =this;
+        var that = this;
 
-            return (
+        return (
+            <div>
                 <Slider
-                    images = {this.state.images}
-                    className = "mySlider"
-                    noOfSlidesShown = {2}
-                    incrementTranslationUnits = {1}
+                    images={this.state.imagesSlider1}
+                    className="mySlider"
+                    noOfSlidesShown={2}
+                    incrementTranslationUnits={1}
                 />
-            )
+                <Slider
+                    images={this.state.imagesSlider2}
+                    className="mySlider"
+                    noOfSlidesShown={2}
+                    incrementTranslationUnits={1}
+                />
+            </div>
+        )
     }
 }
 

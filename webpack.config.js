@@ -32,11 +32,9 @@
         loader: 'file?name=[name].[ext]'
       },
       {
-        test:  /\.css?$/,
-        loaders: ["style", "css"]
+        test   : /\.less$/,
+        loaders: [ "style!css!less" ]
       },
-      { test: /\.less$/,
-        loaders: ["style", "css", "less"]},
       {
         test  : /\.gif/,
         loader: 'url-loader?limit=10000&mimetype=image/gif'

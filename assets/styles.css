@@ -1,35 +1,63 @@
 #mySlider {
-    width: 640px;
-    height: 200px;
     position: relative;
-    left: 25%;
+    width:100%;
 }
 .slider {
     width: 100%;
     height: 100%;
     position: relative;
     border: 1px solid #C0C0C0;
+    overflow:hidden;
 }
 
-.slider-prev,
-.slider-next
+.icon
 {
-    position: absolute;
-    top: 50%;
+    width: 128px;
+    height: 64px;
+    border: 1px solid black;
+    position:absolute;
+    top:50%;
+    -webkit-transform: translateY(100%);
+    -ms-transform: translateY(100%);
+    transform: translateY(100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;background: #333;
+    -webkit-transition: all .3s;
+    transition:all .3s;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    z-index:5;
+    opacity:0;
 
-    display: block;
+}
+.icon.slider-next img{
+    max-width: 100%;
+    transform: translateX(-175%);
+    width: 19px;
+}
+.icon.slider-prev img{
+    max-width: 100%;
+    transform: translateX(175%);
+    width: 19px;
+}
+.icon.slider-next{
+    right:0;
+    transform: translate3d(100%,-50%,0);
+}
+.slider:hover .icon.slider-next{
+    transform: translate3d(50%,-50%,0);
+    opacity:1;
+}
+.icon.slider-prev{
+    transform: translate3d(-100%,-50%,0);
+    left:0;
+}
+.slider:hover .icon.slider-prev{
+    transform: translate3d(-50%,-50%,0);
+    opacity:1;
 }
 
-.slider-prev
-{
-    left: -60px;
-}
-
-
-.slider-next
-{
-    right: -60px;
-}
 
 
 .slide {
@@ -57,47 +85,15 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+    background-color: black;
+    border-width: 0 32px;
+    border-style: solid;
+    border-color:black;
 }
 
-.image-container img {
-    width: 100%;
-    height: 100%
-}
 
 .transition--0 {
     transition: transform 0.1s linear;
 }
 
-.round-button {
-    width:5%;
-}
-.round-button-circle {
-    width: 100%;
-    height:0;
-    padding-bottom: 100%;
-    border-radius: 50%;
-    border:8px solid #cfdcec;
-    overflow:hidden;
 
-    background: #4679BD;
-    box-shadow: 0 0 3px gray;
-}
-.round-button-circle:hover {
-    background:#30588e;
-}
-.round-button a {
-    display:block;
-    float:left;
-    width:100%;
-    padding-top:50%;
-    padding-bottom:50%;
-    line-height:1em;
-    margin-top:-0.5em;
-
-    text-align:center;
-    color:#e2eaf3;
-    font-family:Verdana;
-    font-size:1.2em;
-    font-weight:bold;
-    text-decoration:none;
-}
