@@ -19689,6 +19689,13 @@ webpackJsonp([0,1],[
 	                    noOfSlidesShown: 2,
 	                    boundryIndexes: [1, 5],
 	                    incrementTranslationUnits: 1
+	                }),
+	                _react2.default.createElement(_Slider2.default, {
+	                    images: imagesSlider2,
+	                    className: 'mySlider',
+	                    noOfSlidesShown: 2,
+	                    boundryIndexes: [1, 5],
+	                    incrementTranslationUnits: 1
 	                })
 	            );
 	        }
@@ -19801,13 +19808,14 @@ webpackJsonp([0,1],[
 	        clearInterval(_this.intervalAutoPlay);
 	        _this.intervalAutoPlay = setInterval(function () {
 	            _this.onMouseUp.call(_this);
+	            _this.transitionDelay = true;
 	            setTimeout(function () {
 	                return _this.onMouseDown.call(_this, {
 	                    isLeft: false,
 	                    isUserInitiated: false
 	                });
-	            }, 0);
-	        }, 100);
+	            }, 30);
+	        }, 200);
 	        return _this;
 	    }
 
@@ -19897,7 +19905,13 @@ webpackJsonp([0,1],[
 	            var isLeft = _ref3.isLeft;
 	            var isUserInitiated = _ref3.isUserInitiated;
 
-	            isUserInitiated && clearInterval(this.intervalAutoPlay);
+
+	            if (isUserInitiated) {
+	                clearInterval(this.intervalAutoPlay);
+	                this.clearQueue();
+	                this.isAnimation = false;
+	                this.transitionDelay = false;
+	            }
 	            if (!this.mouseIsDown && !this.isAnimation) {
 	                this.mouseIsDown = true;
 	                this.interval = setInterval(function () {
@@ -19921,6 +19935,8 @@ webpackJsonp([0,1],[
 	    }, {
 	        key: 'onTransitionEnd',
 	        value: function onTransitionEnd() {
+	            debugger;
+
 	            this.isAnimation = false;
 	        }
 	    }, {
@@ -19957,7 +19973,8 @@ webpackJsonp([0,1],[
 	            var noTransition = _state.noTransition;
 	            var sliderTrackStyle = {
 	                width: sliderTrackWidth,
-	                transform: 'translate3d(' + translationUnits + '%,0px,0px)'
+	                transform: 'translate3d(' + translationUnits + '%,0px,0px)',
+	                'transition-delay': this.transitionDelay ? '1.5s' : '0s'
 	            };
 	            var renderButton = function renderButton(_ref4) {
 	                var isLeft = _ref4.isLeft;

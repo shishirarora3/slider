@@ -16,11 +16,12 @@ class Slider extends Component {
         clearInterval(this.intervalAutoPlay);
         this.intervalAutoPlay = setInterval(()=>{
             this.onMouseUp.call(this);
+            this.transitionDelay = true;
             setTimeout(()=>this.onMouseDown.call(this,{
                 isLeft: false,
                 isUserInitiated: false
-            }),0);
-        },100);
+            }),30);
+        },200);
     }
     calculateNewIndex({isLeft,sliderIndex = 0, incrementTranslationUnits}){
         return {
@@ -85,7 +86,13 @@ class Slider extends Component {
     }
 
     onMouseDown({isLeft, isUserInitiated}, e) {
-        isUserInitiated && clearInterval(this.intervalAutoPlay);
+
+        if(isUserInitiated){
+            clearInterval(this.intervalAutoPlay);
+            this.clearQueue();
+            this.isAnimation = false;
+            this.transitionDelay = false;
+        }
         if (!this.mouseIsDown && !this.isAnimation) {
             this.mouseIsDown = true;
             this.interval = setInterval(function () {
@@ -104,6 +111,8 @@ class Slider extends Component {
         cancelAnimationFrame(this.raf);
     }
     onTransitionEnd() {
+        debugger;
+
         this.isAnimation = false;
     }
 
@@ -133,7 +142,8 @@ class Slider extends Component {
             {translationUnits, noTransition} = this.state,
             sliderTrackStyle = {
                 width: sliderTrackWidth,
-                transform: 'translate3d(' + translationUnits + '%,0px,0px)'
+                transform: 'translate3d(' + translationUnits + '%,0px,0px)',
+                'transition-delay' : this.transitionDelay?'1.5s':'0s'
             };
         const renderButton = ({isLeft, className, source})=> {
             return (

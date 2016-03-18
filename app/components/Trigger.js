@@ -41,7 +41,13 @@ class Trigger extends Component {
                     boundryIndexes = {[1,5]}
                     incrementTranslationUnits={1}
                 />
-
+                <Slider
+                    images={imagesSlider2}
+                    className="mySlider"
+                    noOfSlidesShown={2}
+                    boundryIndexes = {[1,5]}
+                    incrementTranslationUnits={1}
+                />
             </div>
         )
     }
