@@ -19655,50 +19655,56 @@ webpackJsonp([0,1],[
 
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Trigger).call(this, props));
 
+	        var imagesSlider1 = void 0,
+	            images = ['assets/loader.gif', 'assets/loader.gif', 'assets/loader.gif'];
 	        _this.state = {
-	            images: ['assets/loader.gif']
+	            imagesSlider2: images,
+	            imagesSlider1: images
+
 	        };
 	        _data2.default.setSource(props.source).next(5, function (images) {
-
-	            _this.setState({
-	                imagesSlider1: _this.makeCircular(images)
-	            });
+	            imagesSlider1 = Trigger.makeCircular(images);
 	        }).next(5, function (images) {
 	            _this.setState({
-	                imagesSlider2: _this.makeCircular(images)
+	                imagesSlider2: Trigger.makeCircular(images),
+	                imagesSlider1: imagesSlider1
 	            });
 	        });
 	        return _this;
 	    }
 
 	    _createClass(Trigger, [{
-	        key: 'makeCircular',
-	        value: function makeCircular(images) {
-	            images.push(images[0]);
-	            images.unshift(images[images.length - 2]);
-	            return images;
-	        }
-	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var that = this;
+	            var _state = this.state;
+	            var imagesSlider1 = _state.imagesSlider1;
+	            var imagesSlider2 = _state.imagesSlider2;
 
 	            return _react2.default.createElement(
 	                'div',
 	                null,
 	                _react2.default.createElement(_Slider2.default, {
-	                    images: this.state.imagesSlider1,
+	                    images: imagesSlider1,
 	                    className: 'mySlider',
 	                    noOfSlidesShown: 2,
+	                    boundryIndexes: [1, 5],
 	                    incrementTranslationUnits: 1
 	                }),
 	                _react2.default.createElement(_Slider2.default, {
-	                    images: this.state.imagesSlider2,
+	                    images: imagesSlider2,
 	                    className: 'mySlider',
 	                    noOfSlidesShown: 2,
+	                    boundryIndexes: [1, 5],
 	                    incrementTranslationUnits: 1
 	                })
 	            );
+	        }
+	    }], [{
+	        key: 'makeCircular',
+	        value: function makeCircular(images) {
+	            images.push(images[0]);
+	            images.unshift(images[images.length - 2]);
+	            return images;
 	        }
 	    }]);
 
@@ -19760,6 +19766,8 @@ webpackJsonp([0,1],[
 	    value: true
 	});
 
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
@@ -19792,10 +19800,8 @@ webpackJsonp([0,1],[
 
 	        var images = props.images;
 	        var sliderLength = images.length;
-
 	        var sliderItemWidth = 100 / sliderLength;
 	        var relativeTranslationUnits = parseInt(sliderItemWidth / 2);
-	        _this.sliderIndex = 0;
 	        _this.state = {
 	            translationUnits: -relativeTranslationUnits,
 	            relativeTranslationUnits: relativeTranslationUnits,
@@ -19810,13 +19816,18 @@ webpackJsonp([0,1],[
 	            var props = this.props;
 	            var images = props.images;
 	            var incrementTranslationUnits = props.incrementTranslationUnits;
+	            var boundryIndexes = props.boundryIndexes;
+
+	            var _boundryIndexes = _slicedToArray(boundryIndexes, 2);
+
+	            var startIndex = _boundryIndexes[0];
+	            var endIndex = _boundryIndexes[1];
 	            var sliderLength = images.length;
 	            var sliderItemWidth = 100 / sliderLength;
 	            var translationUnits = void 0;
 	            var noTransition = false;
-
 	            var relativeTranslationUnits = this.state.relativeTranslationUnits;
-
+	            this.sliderIndex = this.sliderIndex || 0;
 	            var calculator = {
 	                true: function () {
 	                    this.sliderIndex -= incrementTranslationUnits;
@@ -19825,18 +19836,20 @@ webpackJsonp([0,1],[
 	                    this.sliderIndex += incrementTranslationUnits;
 	                }.bind(this)
 	            };
+
 	            calculator[isLeft]();
-	            if (this.sliderIndex >= sliderLength - 1) {
-	                this.sliderIndex = 1;
+	            if (this.sliderIndex >= endIndex) {
+	                this.sliderIndex = 0;
 	                this.isAnimation = false;
 	                noTransition = true;
-	            } else if (this.sliderIndex <= 0) {
-	                this.sliderIndex = sliderLength - 2;
+	            } else if (this.sliderIndex < startIndex) {
+	                this.sliderIndex = endIndex;
 	                noTransition = true;
 	                this.isAnimation = false;
 	            } else {
 	                this.isAnimation = true;
 	            }
+	            console.log(this.sliderIndex);
 	            translationUnits = -1 * this.sliderIndex * sliderItemWidth - relativeTranslationUnits;
 	            this.setState({
 	                noTransition: noTransition,
@@ -19898,15 +19911,15 @@ webpackJsonp([0,1],[
 	        value: function render() {
 	            var _this2 = this;
 
-	            console.log(this.state);
-
 	            var props = this.props;
 	            var images = props.images;
 	            var noOfSlidesShown = props.noOfSlidesShown;
 	            var sliderLength = images.length;
 
 	            var sliderTrackWidth = sliderLength / noOfSlidesShown * 100 + '%';
-	            var translationUnits = this.state.translationUnits;
+	            var _state = this.state;
+	            var translationUnits = _state.translationUnits;
+	            var noTransition = _state.noTransition;
 	            var sliderTrackStyle = {
 	                width: sliderTrackWidth,
 	                transform: 'translate3d(' + translationUnits + '%,0px,0px)'
@@ -19930,7 +19943,8 @@ webpackJsonp([0,1],[
 	                        { className: 'slider-list' },
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: "slider-track " + (this.state.noTransition ? "transition--0" : ''), style: sliderTrackStyle, ref: function ref(c) {
+	                            { className: "slider-track " + (noTransition ? "transition--0" : ''), style: sliderTrackStyle,
+	                                ref: function ref(c) {
 	                                    return _this2._sliderTrack = c;
 	                                } },
 	                            images.map(function (imgSrc, i) {

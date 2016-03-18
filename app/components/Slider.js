@@ -6,54 +6,52 @@ class Slider extends Component {
         super(props);
         let {images} = props,
             sliderLength = images.length,
-
             sliderItemWidth = 100 / sliderLength,
             relativeTranslationUnits = parseInt(sliderItemWidth / 2);
-        this.sliderIndex = 0;
         this.state = {
             translationUnits: -relativeTranslationUnits,
             relativeTranslationUnits: relativeTranslationUnits,
-            noTransition : true
+            noTransition: true
         };
     }
 
     setTranslationUnits(isLeft) {
         let props = this.props,
-            {images, incrementTranslationUnits} = props,
+            {images, incrementTranslationUnits, boundryIndexes} = props,
+            [startIndex,endIndex] = boundryIndexes,
             sliderLength = images.length,
             sliderItemWidth = 100 / sliderLength,
             translationUnits,
             noTransition = false,
-
             relativeTranslationUnits = this.state.relativeTranslationUnits;
-
+        this.sliderIndex = this.sliderIndex || 0;
         var calculator = {
-                true: function () {
-                    this.sliderIndex -= incrementTranslationUnits;
-                }.bind(this),
-                false: function () {
-                    this.sliderIndex += incrementTranslationUnits;
-                }.bind(this)
-            };
+            true: function () {
+                this.sliderIndex -= incrementTranslationUnits;
+            }.bind(this),
+            false: function () {
+                this.sliderIndex += incrementTranslationUnits;
+            }.bind(this)
+        };
+
         calculator[isLeft]();
-        if (this.sliderIndex >= sliderLength - 1) {
-            this.sliderIndex = 1;
+        if (this.sliderIndex >= endIndex) {
+            this.sliderIndex = 0;
             this.isAnimation = false;
             noTransition = true;
-        } else if (this.sliderIndex <= 0) {
-            this.sliderIndex = sliderLength - 2;
+        } else if (this.sliderIndex < startIndex) {
+            this.sliderIndex = endIndex;
             noTransition = true;
             this.isAnimation = false;
-        }else{
+        } else {
             this.isAnimation = true;
         }
+        console.log(this.sliderIndex);
         translationUnits = (-1 * this.sliderIndex * sliderItemWidth ) - relativeTranslationUnits;
         this.setState({
             noTransition: noTransition,
             translationUnits: translationUnits
         });
-
-
     }
 
     updateSlider(isLeft) {
@@ -105,14 +103,12 @@ class Slider extends Component {
 
     render() {
 
-        console.log(this.state);
-
         let props = this.props,
             {images,noOfSlidesShown} = props,
             sliderLength = images.length,
 
             sliderTrackWidth = (sliderLength / noOfSlidesShown) * 100 + '%',
-            {translationUnits} = this.state,
+            {translationUnits, noTransition} = this.state,
             sliderTrackStyle = {
                 width: sliderTrackWidth,
                 transform: 'translate3d(' + translationUnits + '%,0px,0px)'
@@ -132,7 +128,8 @@ class Slider extends Component {
                     {renderButton(true, 'slider-prev', 'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png')}
 
                     <div className="slider-list">
-                        <div className={"slider-track " + (this.state.noTransition?"transition--0":'')} style={sliderTrackStyle} ref={(c) => this._sliderTrack = c}>
+                        <div className={"slider-track " + (noTransition?"transition--0":'')} style={sliderTrackStyle}
+                             ref={(c) => this._sliderTrack = c}>
 
                             {images.map(function (imgSrc, i) {
                                 return <Slide imgSrc={imgSrc} key={"image-"+i} sliderLength={sliderLength}/>;
