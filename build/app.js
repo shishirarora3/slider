@@ -19689,6 +19689,13 @@ webpackJsonp([0,1],[
 	                    noOfSlidesShown: 2,
 	                    boundryIndexes: [1, 5],
 	                    incrementTranslationUnits: 1
+	                }),
+	                _react2.default.createElement(_Slider2.default, {
+	                    images: imagesSlider2,
+	                    className: 'mySlider',
+	                    noOfSlidesShown: 2,
+	                    boundryIndexes: [1, 5],
+	                    incrementTranslationUnits: 1
 	                })
 	            );
 	        }
