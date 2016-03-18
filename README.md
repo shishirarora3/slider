@@ -8,5 +8,5 @@
 <li>webpack
 </ol>
 
-<a href="https://rawgit.com/shishirarora3/slider/slider-react/index.html" target="_blank">DEMO</a>
+<a href="https://rawgit.com/shishirarora3/slider/master/index.html" target="_blank">DEMO</a>
 
