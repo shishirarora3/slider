@@ -10,75 +10,99 @@ class Slider extends Component {
             relativeTranslationUnits = parseInt(sliderItemWidth / 2);
         this.state = {
             translationUnits: -relativeTranslationUnits,
-            relativeTranslationUnits: relativeTranslationUnits,
+            relativeTranslationUnits,
             noTransition: true
         };
+        clearInterval(this.intervalAutoPlay);
+        this.intervalAutoPlay = setInterval(()=>{
+            this.onMouseUp.call(this);
+            setTimeout(()=>this.onMouseDown.call(this,{
+                isLeft: false,
+                isUserInitiated: false
+            }),0);
+        },100);
     }
-
+    calculateNewIndex({isLeft,sliderIndex = 0, incrementTranslationUnits}){
+        return {
+            true: () => sliderIndex - incrementTranslationUnits,
+            false: () => sliderIndex + incrementTranslationUnits
+        }[isLeft]();
+    }
     setTranslationUnits(isLeft) {
         let props = this.props,
-            {images, incrementTranslationUnits, boundryIndexes} = props,
-            [startIndex,endIndex] = boundryIndexes,
-            sliderLength = images.length,
+            {images, incrementTranslationUnits} = props,
+            sliderLength = images.length,//5 + 2 shadow images = 7
+            startIndex = 0,//0
+            endIndex = sliderLength- 3,//4
             sliderItemWidth = 100 / sliderLength,
             translationUnits,
             noTransition = false,
             relativeTranslationUnits = this.state.relativeTranslationUnits;
-        this.sliderIndex = this.sliderIndex || 0;
-        var calculator = {
-            true: function () {
-                this.sliderIndex -= incrementTranslationUnits;
-            }.bind(this),
-            false: function () {
-                this.sliderIndex += incrementTranslationUnits;
-            }.bind(this)
-        };
 
-        calculator[isLeft]();
-        if (this.sliderIndex >= endIndex) {
-            this.sliderIndex = 0;
-            this.isAnimation = false;
+        this.sliderIndex = this.calculateNewIndex({
+            isLeft,
+            sliderIndex: this.sliderIndex,
+            incrementTranslationUnits
+        });
+
+        /**
+         * jerk at end to take to initial poition of slider with no animation.
+         * slider goes from index startIndex=0 to index endIndex=4 and then repeats.
+         * index -1 and 5 remain
+         * hidden for circular feel
+         * **/
+        if (this.sliderIndex >= endIndex + 1) {
+            this.sliderIndex = startIndex;
+            this.onTransitionEnd();
+            this.clearQueue();
             noTransition = true;
-        } else if (this.sliderIndex < startIndex) {
+        } else if (this.sliderIndex <= startIndex-1) {
             this.sliderIndex = endIndex;
             noTransition = true;
-            this.isAnimation = false;
+            this.clearQueue();
+            this.onTransitionEnd();
         } else {
             this.isAnimation = true;
         }
-        console.log(this.sliderIndex);
+
         translationUnits = (-1 * this.sliderIndex * sliderItemWidth ) - relativeTranslationUnits;
+
         this.setState({
             noTransition: noTransition,
             translationUnits: translationUnits
         });
     }
 
-    updateSlider(isLeft) {
-        var that = this;
-        if (this.mouseIsDown && !this.isAnimation) {
-            requestAnimationFrame(this.updateSlider.bind(that, isLeft));
+    updateSlider({isLeft}) {
+        let that = this,
+            {mouseIsDown,isAnimation, setTranslationUnits} = this;
+        if (mouseIsDown && !isAnimation) {
+            that.raf = requestAnimationFrame(that.updateSlider.bind(that, {isLeft}));
         } else {
             return false;
         }
         this.setTranslationUnits(isLeft);
-
     }
 
-    onMouseDown(isLeft, e) {
+    onMouseDown({isLeft, isUserInitiated}, e) {
+        isUserInitiated && clearInterval(this.intervalAutoPlay);
         if (!this.mouseIsDown && !this.isAnimation) {
             this.mouseIsDown = true;
             this.interval = setInterval(function () {
-                requestAnimationFrame(this.updateSlider.bind(this, isLeft));
+                this.rafLoop = requestAnimationFrame(this.updateSlider.bind(this, {isLeft}));
             }.bind(this), 10);
         }
     }
 
     onMouseUp(e) {
         this.mouseIsDown = false;
-        clearInterval(this.interval);
+        this.clearQueue();
     }
-
+    clearQueue(){
+        clearInterval(this.interval);
+        cancelAnimationFrame(this.rafLoop);
+        cancelAnimationFrame(this.raf);
+    }
     onTransitionEnd() {
         this.isAnimation = false;
     }
@@ -97,8 +121,6 @@ class Slider extends Component {
             relativeTranslationUnits: relativeTranslationUnits,
             noTransition: true
         });
-
-
     }
 
     render() {
@@ -113,25 +135,40 @@ class Slider extends Component {
                 width: sliderTrackWidth,
                 transform: 'translate3d(' + translationUnits + '%,0px,0px)'
             };
-        const renderButton = (isLeft, className, source)=> {
+        const renderButton = ({isLeft, className, source})=> {
             return (
                 <Button className={className}
-                        onMouseDownCb={this.onMouseDown.bind(this, isLeft)}
-                        onMouseUpCb={this.onMouseUp.bind(this)}
+                        onMouseDownCb={this.onMouseDown.bind(this, {
+                            isLeft,
+                            isUserInitiated: true
+                         })}
+                        onMouseUpCb={this.onMouseUp.bind(this, {
+                            isUserInitiated: true
+                        })}
                         source={source}/>
             )
         };
         return (
             <div id="mySlider">
                 <div className="slider">
-                    {renderButton(false, 'slider-next', 'https://static1.spuul.com/assets/images/icon_chevron_right-bd9598fa29.png')}
-                    {renderButton(true, 'slider-prev', 'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png')}
-
+                    {
+                        renderButton({
+                        isLeft: false,
+                        className: 'slider-next',
+                        source:'https://static1.spuul.com/assets/images/icon_chevron_right-bd9598fa29.png'
+                    })}
+                    {
+                        renderButton({
+                        isLeft: true,
+                        className: 'slider-prev',
+                        source:'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png'
+                    })}
                     <div className="slider-list">
                         <div className={"slider-track " + (noTransition?"transition--0":'')} style={sliderTrackStyle}
                              ref={(c) => this._sliderTrack = c}>
 
-                            {images.map(function (imgSrc, i) {
+                            {
+                                images.map(function (imgSrc, i) {
                                 return <Slide imgSrc={imgSrc} key={"image-"+i} sliderLength={sliderLength}/>;
                             })}
                         </div>

@@ -19689,13 +19689,6 @@ webpackJsonp([0,1],[
 	                    noOfSlidesShown: 2,
 	                    boundryIndexes: [1, 5],
 	                    incrementTranslationUnits: 1
-	                }),
-	                _react2.default.createElement(_Slider2.default, {
-	                    images: imagesSlider2,
-	                    className: 'mySlider',
-	                    noOfSlidesShown: 2,
-	                    boundryIndexes: [1, 5],
-	                    incrementTranslationUnits: 1
 	                })
 	            );
 	        }
@@ -19766,8 +19759,6 @@ webpackJsonp([0,1],[
 	    value: true
 	});
 
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
@@ -19807,50 +19798,78 @@ webpackJsonp([0,1],[
 	            relativeTranslationUnits: relativeTranslationUnits,
 	            noTransition: true
 	        };
+	        clearInterval(_this.intervalAutoPlay);
+	        _this.intervalAutoPlay = setInterval(function () {
+	            _this.onMouseUp.call(_this);
+	            setTimeout(function () {
+	                return _this.onMouseDown.call(_this, {
+	                    isLeft: false,
+	                    isUserInitiated: false
+	                });
+	            }, 0);
+	        }, 100);
 	        return _this;
 	    }
 
 	    _createClass(Slider, [{
+	        key: 'calculateNewIndex',
+	        value: function calculateNewIndex(_ref) {
+	            var isLeft = _ref.isLeft;
+	            var _ref$sliderIndex = _ref.sliderIndex;
+	            var sliderIndex = _ref$sliderIndex === undefined ? 0 : _ref$sliderIndex;
+	            var incrementTranslationUnits = _ref.incrementTranslationUnits;
+
+	            return {
+	                true: function _true() {
+	                    return sliderIndex - incrementTranslationUnits;
+	                },
+	                false: function _false() {
+	                    return sliderIndex + incrementTranslationUnits;
+	                }
+	            }[isLeft]();
+	        }
+	    }, {
 	        key: 'setTranslationUnits',
 	        value: function setTranslationUnits(isLeft) {
 	            var props = this.props;
 	            var images = props.images;
 	            var incrementTranslationUnits = props.incrementTranslationUnits;
-	            var boundryIndexes = props.boundryIndexes;
-
-	            var _boundryIndexes = _slicedToArray(boundryIndexes, 2);
-
-	            var startIndex = _boundryIndexes[0];
-	            var endIndex = _boundryIndexes[1];
-	            var sliderLength = images.length;
+	            var sliderLength = images.length; //5 + 2 shadow images = 7
+	            var startIndex = 0; //0
+	            var endIndex = sliderLength - 3; //4
 	            var sliderItemWidth = 100 / sliderLength;
 	            var translationUnits = void 0;
 	            var noTransition = false;
 	            var relativeTranslationUnits = this.state.relativeTranslationUnits;
-	            this.sliderIndex = this.sliderIndex || 0;
-	            var calculator = {
-	                true: function () {
-	                    this.sliderIndex -= incrementTranslationUnits;
-	                }.bind(this),
-	                false: function () {
-	                    this.sliderIndex += incrementTranslationUnits;
-	                }.bind(this)
-	            };
 
-	            calculator[isLeft]();
-	            if (this.sliderIndex >= endIndex) {
-	                this.sliderIndex = 0;
-	                this.isAnimation = false;
+	            this.sliderIndex = this.calculateNewIndex({
+	                isLeft: isLeft,
+	                sliderIndex: this.sliderIndex,
+	                incrementTranslationUnits: incrementTranslationUnits
+	            });
+
+	            /**
+	             * jerk at end to take to initial poition of slider with no animation.
+	             * slider goes from index startIndex=0 to index endIndex=4 and then repeats.
+	             * index -1 and 5 remain
+	             * hidden for circular feel
+	             * **/
+	            if (this.sliderIndex >= endIndex + 1) {
+	                this.sliderIndex = startIndex;
+	                this.onTransitionEnd();
+	                this.clearQueue();
 	                noTransition = true;
-	            } else if (this.sliderIndex < startIndex) {
+	            } else if (this.sliderIndex <= startIndex - 1) {
 	                this.sliderIndex = endIndex;
 	                noTransition = true;
-	                this.isAnimation = false;
+	                this.clearQueue();
+	                this.onTransitionEnd();
 	            } else {
 	                this.isAnimation = true;
 	            }
-	            console.log(this.sliderIndex);
+
 	            translationUnits = -1 * this.sliderIndex * sliderItemWidth - relativeTranslationUnits;
+
 	            this.setState({
 	                noTransition: noTransition,
 	                translationUnits: translationUnits
@@ -19858,10 +19877,15 @@ webpackJsonp([0,1],[
 	        }
 	    }, {
 	        key: 'updateSlider',
-	        value: function updateSlider(isLeft) {
+	        value: function updateSlider(_ref2) {
+	            var isLeft = _ref2.isLeft;
 	            var that = this;
-	            if (this.mouseIsDown && !this.isAnimation) {
-	                requestAnimationFrame(this.updateSlider.bind(that, isLeft));
+	            var mouseIsDown = this.mouseIsDown;
+	            var isAnimation = this.isAnimation;
+	            var setTranslationUnits = this.setTranslationUnits;
+
+	            if (mouseIsDown && !isAnimation) {
+	                that.raf = requestAnimationFrame(that.updateSlider.bind(that, { isLeft: isLeft }));
 	            } else {
 	                return false;
 	            }
@@ -19869,11 +19893,15 @@ webpackJsonp([0,1],[
 	        }
 	    }, {
 	        key: 'onMouseDown',
-	        value: function onMouseDown(isLeft, e) {
+	        value: function onMouseDown(_ref3, e) {
+	            var isLeft = _ref3.isLeft;
+	            var isUserInitiated = _ref3.isUserInitiated;
+
+	            isUserInitiated && clearInterval(this.intervalAutoPlay);
 	            if (!this.mouseIsDown && !this.isAnimation) {
 	                this.mouseIsDown = true;
 	                this.interval = setInterval(function () {
-	                    requestAnimationFrame(this.updateSlider.bind(this, isLeft));
+	                    this.rafLoop = requestAnimationFrame(this.updateSlider.bind(this, { isLeft: isLeft }));
 	                }.bind(this), 10);
 	            }
 	        }
@@ -19881,7 +19909,14 @@ webpackJsonp([0,1],[
 	        key: 'onMouseUp',
 	        value: function onMouseUp(e) {
 	            this.mouseIsDown = false;
+	            this.clearQueue();
+	        }
+	    }, {
+	        key: 'clearQueue',
+	        value: function clearQueue() {
 	            clearInterval(this.interval);
+	            cancelAnimationFrame(this.rafLoop);
+	            cancelAnimationFrame(this.raf);
 	        }
 	    }, {
 	        key: 'onTransitionEnd',
@@ -19924,10 +19959,19 @@ webpackJsonp([0,1],[
 	                width: sliderTrackWidth,
 	                transform: 'translate3d(' + translationUnits + '%,0px,0px)'
 	            };
-	            var renderButton = function renderButton(isLeft, className, source) {
+	            var renderButton = function renderButton(_ref4) {
+	                var isLeft = _ref4.isLeft;
+	                var className = _ref4.className;
+	                var source = _ref4.source;
+
 	                return _react2.default.createElement(_Button2.default, { className: className,
-	                    onMouseDownCb: _this2.onMouseDown.bind(_this2, isLeft),
-	                    onMouseUpCb: _this2.onMouseUp.bind(_this2),
+	                    onMouseDownCb: _this2.onMouseDown.bind(_this2, {
+	                        isLeft: isLeft,
+	                        isUserInitiated: true
+	                    }),
+	                    onMouseUpCb: _this2.onMouseUp.bind(_this2, {
+	                        isUserInitiated: true
+	                    }),
 	                    source: source });
 	            };
 	            return _react2.default.createElement(
@@ -19936,8 +19980,16 @@ webpackJsonp([0,1],[
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'slider' },
-	                    renderButton(false, 'slider-next', 'https://static1.spuul.com/assets/images/icon_chevron_right-bd9598fa29.png'),
-	                    renderButton(true, 'slider-prev', 'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png'),
+	                    renderButton({
+	                        isLeft: false,
+	                        className: 'slider-next',
+	                        source: 'https://static1.spuul.com/assets/images/icon_chevron_right-bd9598fa29.png'
+	                    }),
+	                    renderButton({
+	                        isLeft: true,
+	                        className: 'slider-prev',
+	                        source: 'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png'
+	                    }),
 	                    _react2.default.createElement(
 	                        'div',
 	                        { className: 'slider-list' },
