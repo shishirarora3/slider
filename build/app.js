@@ -19689,13 +19689,6 @@ webpackJsonp([0,1],[
 	                    noOfSlidesShown: 2,
 	                    boundryIndexes: [1, 5],
 	                    incrementTranslationUnits: 1
-	                }),
-	                _react2.default.createElement(_Slider2.default, {
-	                    images: imagesSlider2,
-	                    className: 'mySlider',
-	                    noOfSlidesShown: 2,
-	                    boundryIndexes: [1, 5],
-	                    incrementTranslationUnits: 1
 	                })
 	            );
 	        }
@@ -19875,7 +19868,7 @@ webpackJsonp([0,1],[
 	            } else {
 	                this.isAnimation = true;
 	            }
-
+	            console.log(this.sliderIndex);
 	            translationUnits = -1 * this.sliderIndex * sliderItemWidth - relativeTranslationUnits;
 
 	            this.setState({
@@ -19909,7 +19902,6 @@ webpackJsonp([0,1],[
 	            if (isUserInitiated) {
 	                clearInterval(this.intervalAutoPlay);
 	                this.clearQueue();
-	                this.isAnimation = false;
 	                this.transitionDelay = false;
 	            }
 	            if (!this.mouseIsDown && !this.isAnimation) {
@@ -19974,7 +19966,7 @@ webpackJsonp([0,1],[
 	            var sliderTrackStyle = {
 	                width: sliderTrackWidth,
 	                transform: 'translate3d(' + translationUnits + '%,0px,0px)',
-	                'transition-delay': this.transitionDelay ? '1.5s' : '0s'
+	                transitionDelay: this.transitionDelay ? '1.5s' : '0s'
 	            };
 	            var renderButton = function renderButton(_ref4) {
 	                var isLeft = _ref4.isLeft;

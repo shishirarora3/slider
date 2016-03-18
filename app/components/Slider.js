@@ -65,7 +65,7 @@ class Slider extends Component {
         } else {
             this.isAnimation = true;
         }
-
+        console.log( this.sliderIndex );
         translationUnits = (-1 * this.sliderIndex * sliderItemWidth ) - relativeTranslationUnits;
 
         this.setState({
@@ -90,7 +90,6 @@ class Slider extends Component {
         if(isUserInitiated){
             clearInterval(this.intervalAutoPlay);
             this.clearQueue();
-            this.isAnimation = false;
             this.transitionDelay = false;
         }
         if (!this.mouseIsDown && !this.isAnimation) {
@@ -143,7 +142,7 @@ class Slider extends Component {
             sliderTrackStyle = {
                 width: sliderTrackWidth,
                 transform: 'translate3d(' + translationUnits + '%,0px,0px)',
-                'transition-delay' : this.transitionDelay?'1.5s':'0s'
+                transitionDelay : this.transitionDelay?'1.5s':'0s'
             };
         const renderButton = ({isLeft, className, source})=> {
             return (
