@@ -12,17 +12,22 @@ class Trigger extends Component {
             images: ['assets/loader.gif']
         };
         imageFactory.setSource(props.source).next(5, (images)=> {
+
             this.setState({
-                imagesSlider1: images
+                imagesSlider1: this.makeCircular(images)
             });
         }).next(5, (images)=> {
             this.setState({
-                imagesSlider2: images
+                imagesSlider2: this.makeCircular(images)
             });
         });
     }
 
-
+    makeCircular( images ){
+        images.push(images[0]);
+        images.unshift(images[images.length-2]);
+        return images;
+    }
     render() {
         var that = this;
 

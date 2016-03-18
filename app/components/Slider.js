@@ -12,21 +12,22 @@ class Slider extends Component {
         this.sliderIndex = 0;
         this.state = {
             translationUnits: -relativeTranslationUnits,
-            relativeTranslationUnits: relativeTranslationUnits
+            relativeTranslationUnits: relativeTranslationUnits,
+            noTransition : true
         };
     }
 
-    getTranslationUnits(isLeft) {
+    setTranslationUnits(isLeft) {
         let props = this.props,
             {images, incrementTranslationUnits} = props,
             sliderLength = images.length,
             sliderItemWidth = 100 / sliderLength,
             translationUnits,
+            noTransition = false,
 
             relativeTranslationUnits = this.state.relativeTranslationUnits;
 
-        var sign,
-            calculator = {
+        var calculator = {
                 true: function () {
                     this.sliderIndex -= incrementTranslationUnits;
                 }.bind(this),
@@ -35,15 +36,23 @@ class Slider extends Component {
                 }.bind(this)
             };
         calculator[isLeft]();
-
         if (this.sliderIndex >= sliderLength - 1) {
-            this.sliderIndex = 0;
-        } else if (this.sliderIndex < 0) {
-            this.sliderIndex = sliderLength - 1;
+            this.sliderIndex = 1;
+            this.isAnimation = false;
+            noTransition = true;
+        } else if (this.sliderIndex <= 0) {
+            this.sliderIndex = sliderLength - 2;
+            noTransition = true;
+            this.isAnimation = false;
+        }else{
+            this.isAnimation = true;
         }
         translationUnits = (-1 * this.sliderIndex * sliderItemWidth ) - relativeTranslationUnits;
+        this.setState({
+            noTransition: noTransition,
+            translationUnits: translationUnits
+        });
 
-        return translationUnits;
 
     }
 
@@ -54,9 +63,8 @@ class Slider extends Component {
         } else {
             return false;
         }
-        var translationUnits = this.getTranslationUnits(isLeft);
-        this.setState({'translationUnits': translationUnits});
-        this.isAnimation = true;
+        this.setTranslationUnits(isLeft);
+
     }
 
     onMouseDown(isLeft, e) {
@@ -88,12 +96,17 @@ class Slider extends Component {
             relativeTranslationUnits = sliderItemWidth / 2;
         this.setState({
             translationUnits: -relativeTranslationUnits,
-            relativeTranslationUnits: relativeTranslationUnits
+            relativeTranslationUnits: relativeTranslationUnits,
+            noTransition: true
         });
+
 
     }
 
     render() {
+
+        console.log(this.state);
+
         let props = this.props,
             {images,noOfSlidesShown} = props,
             sliderLength = images.length,
@@ -103,7 +116,6 @@ class Slider extends Component {
             sliderTrackStyle = {
                 width: sliderTrackWidth,
                 transform: 'translate3d(' + translationUnits + '%,0px,0px)'
-
             };
         const renderButton = (isLeft, className, source)=> {
             return (
@@ -120,7 +132,7 @@ class Slider extends Component {
                     {renderButton(true, 'slider-prev', 'https://static1.spuul.com/assets/images/icon_chevron_left-8f8a035c1b.png')}
 
                     <div className="slider-list">
-                        <div className="slider-track" style={sliderTrackStyle} ref={(c) => this._sliderTrack = c}>
+                        <div className={"slider-track " + (this.state.noTransition?"transition--0":'')} style={sliderTrackStyle} ref={(c) => this._sliderTrack = c}>
 
                             {images.map(function (imgSrc, i) {
                                 return <Slide imgSrc={imgSrc} key={"image-"+i} sliderLength={sliderLength}/>;

@@ -93,7 +93,7 @@
 
 
 .transition--0 {
-    transition: transform 0.1s linear;
+    transition: none!important;
 }
 
 

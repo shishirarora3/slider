@@ -19659,18 +19659,26 @@ webpackJsonp([0,1],[
 	            images: ['assets/loader.gif']
 	        };
 	        _data2.default.setSource(props.source).next(5, function (images) {
+
 	            _this.setState({
-	                imagesSlider1: images
+	                imagesSlider1: _this.makeCircular(images)
 	            });
 	        }).next(5, function (images) {
 	            _this.setState({
-	                imagesSlider2: images
+	                imagesSlider2: _this.makeCircular(images)
 	            });
 	        });
 	        return _this;
 	    }
 
 	    _createClass(Trigger, [{
+	        key: 'makeCircular',
+	        value: function makeCircular(images) {
+	            images.push(images[0]);
+	            images.unshift(images[images.length - 2]);
+	            return images;
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var that = this;
@@ -19790,25 +19798,26 @@ webpackJsonp([0,1],[
 	        _this.sliderIndex = 0;
 	        _this.state = {
 	            translationUnits: -relativeTranslationUnits,
-	            relativeTranslationUnits: relativeTranslationUnits
+	            relativeTranslationUnits: relativeTranslationUnits,
+	            noTransition: true
 	        };
 	        return _this;
 	    }
 
 	    _createClass(Slider, [{
-	        key: 'getTranslationUnits',
-	        value: function getTranslationUnits(isLeft) {
+	        key: 'setTranslationUnits',
+	        value: function setTranslationUnits(isLeft) {
 	            var props = this.props;
 	            var images = props.images;
 	            var incrementTranslationUnits = props.incrementTranslationUnits;
 	            var sliderLength = images.length;
 	            var sliderItemWidth = 100 / sliderLength;
 	            var translationUnits = void 0;
+	            var noTransition = false;
 
 	            var relativeTranslationUnits = this.state.relativeTranslationUnits;
 
-	            var sign,
-	                calculator = {
+	            var calculator = {
 	                true: function () {
 	                    this.sliderIndex -= incrementTranslationUnits;
 	                }.bind(this),
@@ -19817,15 +19826,22 @@ webpackJsonp([0,1],[
 	                }.bind(this)
 	            };
 	            calculator[isLeft]();
-
 	            if (this.sliderIndex >= sliderLength - 1) {
-	                this.sliderIndex = 0;
-	            } else if (this.sliderIndex < 0) {
-	                this.sliderIndex = sliderLength - 1;
+	                this.sliderIndex = 1;
+	                this.isAnimation = false;
+	                noTransition = true;
+	            } else if (this.sliderIndex <= 0) {
+	                this.sliderIndex = sliderLength - 2;
+	                noTransition = true;
+	                this.isAnimation = false;
+	            } else {
+	                this.isAnimation = true;
 	            }
 	            translationUnits = -1 * this.sliderIndex * sliderItemWidth - relativeTranslationUnits;
-
-	            return translationUnits;
+	            this.setState({
+	                noTransition: noTransition,
+	                translationUnits: translationUnits
+	            });
 	        }
 	    }, {
 	        key: 'updateSlider',
@@ -19836,9 +19852,7 @@ webpackJsonp([0,1],[
 	            } else {
 	                return false;
 	            }
-	            var translationUnits = this.getTranslationUnits(isLeft);
-	            this.setState({ 'translationUnits': translationUnits });
-	            this.isAnimation = true;
+	            this.setTranslationUnits(isLeft);
 	        }
 	    }, {
 	        key: 'onMouseDown',
@@ -19875,13 +19889,16 @@ webpackJsonp([0,1],[
 	            var relativeTranslationUnits = sliderItemWidth / 2;
 	            this.setState({
 	                translationUnits: -relativeTranslationUnits,
-	                relativeTranslationUnits: relativeTranslationUnits
+	                relativeTranslationUnits: relativeTranslationUnits,
+	                noTransition: true
 	            });
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
 	            var _this2 = this;
+
+	            console.log(this.state);
 
 	            var props = this.props;
 	            var images = props.images;
@@ -19893,7 +19910,6 @@ webpackJsonp([0,1],[
 	            var sliderTrackStyle = {
 	                width: sliderTrackWidth,
 	                transform: 'translate3d(' + translationUnits + '%,0px,0px)'
-
 	            };
 	            var renderButton = function renderButton(isLeft, className, source) {
 	                return _react2.default.createElement(_Button2.default, { className: className,
@@ -19914,7 +19930,7 @@ webpackJsonp([0,1],[
 	                        { className: 'slider-list' },
 	                        _react2.default.createElement(
 	                            'div',
-	                            { className: 'slider-track', style: sliderTrackStyle, ref: function ref(c) {
+	                            { className: "slider-track " + (this.state.noTransition ? "transition--0" : ''), style: sliderTrackStyle, ref: function ref(c) {
 	                                    return _this2._sliderTrack = c;
 	                                } },
 	                            images.map(function (imgSrc, i) {
