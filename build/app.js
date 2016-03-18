@@ -19805,21 +19805,28 @@ webpackJsonp([0,1],[
 	            relativeTranslationUnits: relativeTranslationUnits,
 	            noTransition: true
 	        };
-	        clearInterval(_this.intervalAutoPlay);
-	        _this.intervalAutoPlay = setInterval(function () {
-	            _this.onMouseUp.call(_this);
-	            _this.transitionDelay = true;
-	            setTimeout(function () {
-	                return _this.onMouseDown.call(_this, {
-	                    isLeft: false,
-	                    isUserInitiated: false
-	                });
-	            }, 30);
-	        }, 200);
+	        _this.initiateAutoPlay();
 	        return _this;
 	    }
 
 	    _createClass(Slider, [{
+	        key: 'initiateAutoPlay',
+	        value: function initiateAutoPlay() {
+	            var _this2 = this;
+
+	            clearInterval(this.intervalAutoPlay);
+	            this.intervalAutoPlay = setInterval(function () {
+	                _this2.onMouseUp.call(_this2);
+	                _this2.transitionDelay = true;
+	                setTimeout(function () {
+	                    return _this2.onMouseDown.call(_this2, {
+	                        isLeft: false,
+	                        isUserInitiated: false
+	                    });
+	                }, 30);
+	            }, 200);
+	        }
+	    }, {
 	        key: 'calculateNewIndex',
 	        value: function calculateNewIndex(_ref) {
 	            var isLeft = _ref.isLeft;
@@ -19875,7 +19882,6 @@ webpackJsonp([0,1],[
 	            } else {
 	                this.isAnimation = true;
 	            }
-	            console.log(this.sliderIndex);
 	            translationUnits = -1 * this.sliderIndex * sliderItemWidth - relativeTranslationUnits;
 
 	            this.setState({
@@ -19902,12 +19908,22 @@ webpackJsonp([0,1],[
 	    }, {
 	        key: 'onMouseDown',
 	        value: function onMouseDown(_ref3, e) {
+	            var _this3 = this;
+
 	            var isLeft = _ref3.isLeft;
 	            var isUserInitiated = _ref3.isUserInitiated;
 
 
 	            if (isUserInitiated) {
 	                clearInterval(this.intervalAutoPlay);
+	                this.lastMouseDownTimestamp = new Date();
+	                this.mouseDowntimeStampTimeout = setTimeout(function () {
+	                    var currentTimeStamp = new Date(),
+	                        timeElapsed = void 0;
+	                    timeElapsed = Math.round((currentTimeStamp.getTime() - _this3.lastMouseDownTimestamp.getTime()) / 1000);
+	                    console.log(timeElapsed);
+	                    timeElapsed > 1.5 && _this3.initiateAutoPlay();
+	                }, 2000);
 	                this.clearQueue();
 	                this.transitionDelay = false;
 	            }
@@ -19934,8 +19950,6 @@ webpackJsonp([0,1],[
 	    }, {
 	        key: 'onTransitionEnd',
 	        value: function onTransitionEnd() {
-	            debugger;
-
 	            this.isAnimation = false;
 	        }
 	    }, {
@@ -19959,7 +19973,7 @@ webpackJsonp([0,1],[
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this2 = this;
+	            var _this4 = this;
 
 	            var props = this.props;
 	            var images = props.images;
@@ -19981,11 +19995,11 @@ webpackJsonp([0,1],[
 	                var source = _ref4.source;
 
 	                return _react2.default.createElement(_Button2.default, { className: className,
-	                    onMouseDownCb: _this2.onMouseDown.bind(_this2, {
+	                    onMouseDownCb: _this4.onMouseDown.bind(_this4, {
 	                        isLeft: isLeft,
 	                        isUserInitiated: true
 	                    }),
-	                    onMouseUpCb: _this2.onMouseUp.bind(_this2, {
+	                    onMouseUpCb: _this4.onMouseUp.bind(_this4, {
 	                        isUserInitiated: true
 	                    }),
 	                    source: source });
@@ -20013,7 +20027,7 @@ webpackJsonp([0,1],[
 	                            'div',
 	                            { className: "slider-track " + (noTransition ? "transition--0" : ''), style: sliderTrackStyle,
 	                                ref: function ref(c) {
-	                                    return _this2._sliderTrack = c;
+	                                    return _this4._sliderTrack = c;
 	                                } },
 	                            images.map(function (imgSrc, i) {
 	                                return _react2.default.createElement(_Slide2.default, { imgSrc: imgSrc, key: "image-" + i, sliderLength: sliderLength });

@@ -13,6 +13,9 @@ class Slider extends Component {
             relativeTranslationUnits,
             noTransition: true
         };
+        this.initiateAutoPlay();
+    }
+    initiateAutoPlay(){
         clearInterval(this.intervalAutoPlay);
         this.intervalAutoPlay = setInterval(()=>{
             this.onMouseUp.call(this);
@@ -65,13 +68,13 @@ class Slider extends Component {
         } else {
             this.isAnimation = true;
         }
-        console.log( this.sliderIndex );
         translationUnits = (-1 * this.sliderIndex * sliderItemWidth ) - relativeTranslationUnits;
 
         this.setState({
             noTransition: noTransition,
             translationUnits: translationUnits
         });
+
     }
 
     updateSlider({isLeft}) {
@@ -89,6 +92,14 @@ class Slider extends Component {
 
         if(isUserInitiated){
             clearInterval(this.intervalAutoPlay);
+            this.lastMouseDownTimestamp = new Date();
+            this.mouseDowntimeStampTimeout = setTimeout(()=>{
+                let currentTimeStamp = new Date(),
+                    timeElapsed;
+                timeElapsed = Math.round((currentTimeStamp.getTime() - this.lastMouseDownTimestamp.getTime() ) / 1000);
+                console.log( timeElapsed );
+                timeElapsed > 1.5 && this.initiateAutoPlay();
+            },2000);
             this.clearQueue();
             this.transitionDelay = false;
         }
@@ -110,8 +121,6 @@ class Slider extends Component {
         cancelAnimationFrame(this.raf);
     }
     onTransitionEnd() {
-        debugger;
-
         this.isAnimation = false;
     }
 
