@@ -25,8 +25,8 @@ class Trigger extends Component {
     }
 
     static makeCircular( images ){
-        images.push(images[0]);
-        images.unshift(images[images.length-2]);
+        images.push(images[0],images[1]);
+        images.unshift(images[images.length-3]);
         return images;
     }
     render() {

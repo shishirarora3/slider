@@ -104,7 +104,6 @@ class Slider extends Component {
             this.autoPlayIfWaitElapsed();
             this.clearQueue();
             this.transitionDelay = false;
-            this.isAnimation = false;
         }
         if (!this.mouseIsDown && !this.isAnimation) {
             this.mouseIsDown = true;

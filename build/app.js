@@ -19702,8 +19702,8 @@ webpackJsonp([0,1],[
 	    }], [{
 	        key: 'makeCircular',
 	        value: function makeCircular(images) {
-	            images.push(images[0]);
-	            images.unshift(images[images.length - 2]);
+	            images.push(images[0], images[1]);
+	            images.unshift(images[images.length - 3]);
 	            return images;
 	        }
 	    }]);
@@ -19931,7 +19931,6 @@ webpackJsonp([0,1],[
 	                this.autoPlayIfWaitElapsed();
 	                this.clearQueue();
 	                this.transitionDelay = false;
-	                this.isAnimation = false;
 	            }
 	            if (!this.mouseIsDown && !this.isAnimation) {
 	                this.mouseIsDown = true;
