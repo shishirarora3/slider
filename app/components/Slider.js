@@ -87,21 +87,24 @@ class Slider extends Component {
         }
         this.setTranslationUnits(isLeft);
     }
-
+    autoPlayIfWaitElapsed(){
+        this.lastMouseDownTimestamp = new Date();
+        clearTimeout( this.mouseDowntimeStampTimeout );
+        this.mouseDowntimeStampTimeout = setTimeout(()=>{
+            let currentTimeStamp = new Date(),
+                timeElapsed;
+            timeElapsed = Math.round((currentTimeStamp.getTime() - this.lastMouseDownTimestamp.getTime() ));
+            timeElapsed > 1000 && this.initiateAutoPlay();
+        },2000);
+    }
     onMouseDown({isLeft, isUserInitiated}, e) {
 
         if(isUserInitiated){
             clearInterval(this.intervalAutoPlay);
-            this.lastMouseDownTimestamp = new Date();
-            this.mouseDowntimeStampTimeout = setTimeout(()=>{
-                let currentTimeStamp = new Date(),
-                    timeElapsed;
-                timeElapsed = Math.round((currentTimeStamp.getTime() - this.lastMouseDownTimestamp.getTime() ) / 1000);
-                console.log( timeElapsed );
-                timeElapsed > 1.5 && this.initiateAutoPlay();
-            },2000);
+            this.autoPlayIfWaitElapsed();
             this.clearQueue();
             this.transitionDelay = false;
+            this.isAnimation = false;
         }
         if (!this.mouseIsDown && !this.isAnimation) {
             this.mouseIsDown = true;

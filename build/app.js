@@ -19906,26 +19906,32 @@ webpackJsonp([0,1],[
 	            this.setTranslationUnits(isLeft);
 	        }
 	    }, {
-	        key: 'onMouseDown',
-	        value: function onMouseDown(_ref3, e) {
+	        key: 'autoPlayIfWaitElapsed',
+	        value: function autoPlayIfWaitElapsed() {
 	            var _this3 = this;
 
+	            this.lastMouseDownTimestamp = new Date();
+	            clearTimeout(this.mouseDowntimeStampTimeout);
+	            this.mouseDowntimeStampTimeout = setTimeout(function () {
+	                var currentTimeStamp = new Date(),
+	                    timeElapsed = void 0;
+	                timeElapsed = Math.round(currentTimeStamp.getTime() - _this3.lastMouseDownTimestamp.getTime());
+	                timeElapsed > 1000 && _this3.initiateAutoPlay();
+	            }, 2000);
+	        }
+	    }, {
+	        key: 'onMouseDown',
+	        value: function onMouseDown(_ref3, e) {
 	            var isLeft = _ref3.isLeft;
 	            var isUserInitiated = _ref3.isUserInitiated;
 
 
 	            if (isUserInitiated) {
 	                clearInterval(this.intervalAutoPlay);
-	                this.lastMouseDownTimestamp = new Date();
-	                this.mouseDowntimeStampTimeout = setTimeout(function () {
-	                    var currentTimeStamp = new Date(),
-	                        timeElapsed = void 0;
-	                    timeElapsed = Math.round((currentTimeStamp.getTime() - _this3.lastMouseDownTimestamp.getTime()) / 1000);
-	                    console.log(timeElapsed);
-	                    timeElapsed > 1.5 && _this3.initiateAutoPlay();
-	                }, 2000);
+	                this.autoPlayIfWaitElapsed();
 	                this.clearQueue();
 	                this.transitionDelay = false;
+	                this.isAnimation = false;
 	            }
 	            if (!this.mouseIsDown && !this.isAnimation) {
 	                this.mouseIsDown = true;
